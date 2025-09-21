@@ -1,0 +1,25 @@
+name: nakama-tictactoe
+data_dir: "./data/"
+
+logger:
+  level: "DEBUG"
+  stdout: true
+
+socket:
+  server_key: "defaultkey"
+  port: 7350
+
+database:
+  # FIX: Use the correct connection string for PostgreSQL
+  # Format: "username:password@host:port/database_name"
+  address:
+    - "postgres:localdb@postgres:5432/nakama"
+
+runtime:
+  path: "/nakama/data/modules"
+  http_key: "defaulthttpkey"
+
+
+cors:
+  allowed_origins:
+    - "*"

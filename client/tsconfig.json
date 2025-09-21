@@ -1,0 +1,8 @@
+{
+  "extends": "@tsconfig/react-native/tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es6", "dom", "es2017.object", "es2017.string", "es2019.object", "es2019.string", "es2019.array", "es2019.symbol", "es2020.string", "es2020.symbol.wellknown", "esnext"],
+    "forceConsistentCasingInFileNames": true
+    
+  }
+}

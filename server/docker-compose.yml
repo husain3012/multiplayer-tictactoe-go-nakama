@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:12.2-alpine
+    environment:
+      - POSTGRES_DB=nakama
+      - POSTGRES_PASSWORD=localdb
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nakama"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # FIX: Add a new service just for running the database migration.
+  nakama-migrate:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # This service will run the migration command and then exit.
+    command:
+      - "migrate"
+      - "up"
+      - "--database.address"
+      - "postgres:localdb@postgres:5432/nakama"
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nakama:
+    build: .
+    depends_on:
+      # The main nakama service now depends on the migration service completing.
+      nakama-migrate:
+        condition: service_completed_successfully
+    ports:
+      - "7349:7349"
+      - "7350:7350"
+      - "7351:7351"
+    command:
+      - "--config"
+      - "/nakama/data/local.yml"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  data:
