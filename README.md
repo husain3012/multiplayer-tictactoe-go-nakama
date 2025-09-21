@@ -1,13 +1,51 @@
-> Why do I have a folder named ".expo" in my project?
+# TicTacToe Multiplayer
 
-The ".expo" folder is created when an Expo project is started using "expo start" command.
+A real-time, server‑authoritative Tic‑Tac‑Toe built with React Native and Nakama. It features device-based authentication, two matchmaking modes (Quick and Ranked), and leaderboards (ELO and Weekly Wins), wrapped in a modern dark UI.
 
-> What do the files contain?
+## Tech Stack
+- Client: React Native, React, TypeScript, React Navigation
+- Backend: Nakama (Go runtime), PostgreSQL
+- Realtime: Nakama WebSocket
 
-- "devices.json": contains information about devices that have recently opened this project. This is used to populate the "Development sessions" list in your development builds.
-- "settings.json": contains the server configuration that is used to serve the application manifest.
+## Prerequisites
+- Node.js LTS
+- Android Studio and/or Xcode (for native builds)
+- Docker + Docker Compose (for the backend)
+- npm or yarn
 
-> Should I commit the ".expo" folder?
+## Backend Setup (Nakama)
+1. Clone/open the backend folder.
+2. Implement/register a Go match module “tictactoe” (MatchInit/Join/Loop/Leave) and a MatchmakerMatched hook to create matches for quick/ranked modes.
+3. Create leaderboards on startup:
+   - `global_elo` (operator: set, sort: desc)
+   - `weekly_wins` (operator: incr, sort: desc, weekly reset schedule)
+4. Start services:
+   - `docker compose up --build`
+5. Default ports:
+   - gRPC: 7349
+   - HTTP Gateway: 7350
+   - Console: 7351
 
-No, you should not share the ".expo" folder. It does not contain any information that is relevant for other developers working on the project, it is specific to your machine.
-Upon project creation, the ".expo" folder is already added to your ".gitignore" file.
+## Client Setup
+1. `cd client && npm install`
+2. Configure Nakama host in `src/services/NakamaService.ts`:
+   - Web/simulator: `localhost`
+   - Android emulator: `10.0.2.2`
+   - Physical device: your machine’s LAN IP
+3. Run:
+   - Dev server: `npm start`
+   - Android: `npm run android`
+   - iOS: `npm run ios`
+   - Type-check: `npm run tsc`
+
+## Features
+- First login name prompt saved as `display_name` (used in UI/leaderboards)
+- Matchmaking:
+  - Quick: `properties.mode=quick`, query `properties.mode:quick`
+  - Ranked: `properties.mode=ranked` with MMR banding in query
+  - Ticket-based queue join/leave
+- Leaderboards:
+  - Global ELO (set)
+  - Weekly Wins (increment + weekly reset)
+- Dark UI, animated move feedback, grid overlay, turn pulse, game-over modal
+
